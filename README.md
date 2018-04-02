@@ -2,6 +2,56 @@
 Self-Driving Car Engineer Nanodegree Program
 
 ---
+## Introduction
+The goal of this project is to navigate a track in the simulator, which communicates telemetry and track waypoint data via websocket. It sends back to the simulator following data:
+ * steering of vehicle
+ * acceleration of vehicle
+
+To achive a goal I have to calculate an optimal trajectory and its associated actuation commands to minimize an error with a third-degree polynomial fit to the given waypoints. The third order polynomials will fit trajectories for most roads.
+
+## Rubric points
+
+## The Model
+- Student describes their model in detail. This includes the state, actuators and update equations.
+
+I used the model suggested in the lessons. It is the kinematic bicycle model. The state is defined as a vector of following scalar values:
+* x: The global  x position of the vehicle.
+* y: The global y position of the vehicle.
+* ψ: The orientation of the vehicle (psi).
+* v: The current velocity.
+* cte: The Cross-Track-Error
+* ε: The orientation error (epsi)
+
+The model combines the state and actuations from the previous timestep to calculate the state for the current timestep based on the equations you can see below.
+These equations are implemnetd in MPC.cpp file in lines 130 - 137.
+
+```
+    x_[t+1] = x[t] + v[t] * cos(psi[t]) * dt
+    y_[t+1] = y[t] + v[t] * sin(psi[t]) * dt
+    psi_[t+1] = psi[t] + v[t] / Lf * delta[t] * dt
+    v_[t+1] = v[t] + a[t] * dt
+    cte[t+1] = f(x[t]) - y[t] + v[t] * sin(epsi[t]) * dt
+    epsi[t+1] = psi[t] - psides[t] + v[t] * delta[t] / Lf * dt
+```
+
+
+## Timestep Length and Elapsed Duration (N & dt):
+ - Student discusses the reasoning behind the chosen N (timestep length) and dt (elapsed duration between timesteps) values. Additionally the student details the previous values tried.
+
+I adapted the proposed in the lessons values for N = 10 and dt = 0.1 by chnaging the value dt to 0.2.
+It means the duration over which future predictions are made is 10 * 0.2 it means 2 seconds.
+
+## Polynomial Fitting and MPC Preprocessing
+- A polynomial is fitted to waypoints. If the student preprocesses waypoints, the vehicle state, and/or actuators prior to the MPC procedure it is described.
+
+The waypoints are preprocessed by transforming them to the vehicle's perspective. For that I provided a static method in MPC class _MPC::Transform2VehicleCoord_ in MPC.cpp file lines 158-176.
+
+
+## Model Predictive Control with Latency
+ - The student implements Model Predictive Control that handles a 100 millisecond latency. Student provides details on how they deal with latency.
+
+After many tries I've choosen a latency value you can find in MPC::latency static variable. I used this value to predict a state that I defined in MPC::PredictState method. You can find in MPC.cpp file lines 178 - 189.
+
 
 ## Dependencies
 
